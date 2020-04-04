@@ -121,6 +121,7 @@ function convertSpotifyResponse(responseJson)
   }
 
   return {
+    isMusicPlaying: true,
     name: responseJson.item.name,
     album: {
       name: responseJson.item.album.name,
@@ -163,7 +164,13 @@ module.exports = async function (context, req) {
       }
 
       var result = await getSpotifyNowPlaying();
-      context.res = { status : 200, body: result };
+      if (result === null)
+      {
+        context.res = { status : 200, body: {isMusicPlaying: false}, headers: {'Content-Type': 'application/json'} };
+        return;
+      }
+
+      context.res = { status : 200, body: result, headers: {'Content-Type': 'application/json'}};
       return;
   }
 
