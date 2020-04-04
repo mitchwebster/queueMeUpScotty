@@ -121,13 +121,15 @@ function convertSpotifyResponse(responseJson)
   }
 
   return {
-    isMusicPlaying: true,
+    is_playing: true,
     name: responseJson.item.name,
     album: {
       name: responseJson.item.album.name,
       images: responseJson.item.album.images
     },
-    artists: artistNames
+    artists: artistNames,
+    progress_ms: responseJson.progress_ms,
+    duration_ms: responseJson.item.duration_ms
   }
 }
 
@@ -166,11 +168,13 @@ module.exports = async function (context, req) {
       var result = await getSpotifyNowPlaying();
       if (result === null)
       {
-        context.res = { status : 200, body: {isMusicPlaying: false}, headers: {'Content-Type': 'application/json'} };
+        context.res = { status : 200, body: {is_playing: false}};
+        context.res.headers = { 'Content-Type':'application/json' };
         return;
       }
 
-      context.res = { status : 200, body: result, headers: {'Content-Type': 'application/json'}};
+      context.res = { status : 200, body: result };
+      context.res.headers = { 'Content-Type':'application/json' };
       return;
   }
 
