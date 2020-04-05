@@ -30,6 +30,7 @@ type PlayerState = {
   albumImageUrl: string
   albumName: string
   artists: string[]
+  trackUrl: string
 };
 
 class App extends Component<ComponentProps & WithStyles<typeof styles>, PlayerState> {
@@ -44,28 +45,12 @@ class App extends Component<ComponentProps & WithStyles<typeof styles>, PlayerSt
       albumImageUrl: '',
       albumName: '',
       artists: [''],
+      trackUrl: ''
     };
 
     if (this.state === null)
     {
-      this.setState(initialState); // just to ensure we dont spam the api if it fails
-      axios.get(`/api/Player`)
-      .then(res => {
-        console.log(res.data);
-        if (res.data.is_playing) {
-          initialState.is_playing = true;
-          initialState.progressMs = res.data.progress_ms;
-          initialState.durationMs = res.data.duration_ms;
-          initialState.songCompletePercent = 100*(res.data.progress_ms / res.data.duration_ms);
-          initialState.songName = res.data.name;
-          initialState.albumImageUrl = res.data.album.images[0].url;
-          initialState.albumName = res.data.album.name;
-          initialState.artists = res.data.artists;
-        }
-
-        this.setState(initialState);
-      });
-
+      this.getPlayerState(initialState);
       return;
     }
 
@@ -83,22 +68,26 @@ class App extends Component<ComponentProps & WithStyles<typeof styles>, PlayerSt
     }
 
     // Otherwise we have just finished a song/polling period - make the call again
-    axios.get(`/api/Player`)
-      .then(res => {
-        console.log(res.data);
-        if (res.data.is_playing) {
-          initialState.is_playing = true;
-          initialState.progressMs = res.data.progress_ms;
-          initialState.durationMs = res.data.duration_ms;
-          initialState.songCompletePercent = 100*(res.data.progress_ms / res.data.duration_ms);
-          initialState.songName = res.data.name;
-          initialState.albumImageUrl = res.data.album.images[0].url;
-          initialState.albumName = res.data.album.name;
-          initialState.artists = res.data.artists;
-        }
+    this.getPlayerState(initialState);
+  };
 
-        this.setState(initialState);
-      });
+  getPlayerState = async (initialState: PlayerState) => {
+      this.setState(initialState); // just to ensure we dont spam the api if it fails
+      let res = await axios.get("/api/Player");
+      console.log(res.data);
+      if (res.data.is_playing) {
+        initialState.is_playing = true;
+        initialState.progressMs = res.data.progress_ms;
+        initialState.durationMs = res.data.duration_ms;
+        initialState.songCompletePercent = 100*(res.data.progress_ms / res.data.duration_ms);
+        initialState.songName = res.data.name;
+        initialState.albumImageUrl = res.data.album.images[0].url;
+        initialState.albumName = res.data.album.name;
+        initialState.artists = res.data.artists;
+        initialState.trackUrl = res.data.external_uri;
+      }
+
+      this.setState(initialState);
   };
 
   // Before the component mounts, we initialise our state
@@ -140,7 +129,7 @@ class App extends Component<ComponentProps & WithStyles<typeof styles>, PlayerSt
       </CardContent>
       <Slider disabled value={this.state.songCompletePercent} aria-labelledby="disabled-slider" />
       <CardActions>
-        <Button size="small" color="primary">
+        <Button size="small" color="primary" href={this.state.trackUrl}>
           Find on Spotify
         </Button>
       </CardActions>
