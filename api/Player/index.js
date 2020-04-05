@@ -129,7 +129,8 @@ function convertSpotifyResponse(responseJson)
     },
     artists: artistNames,
     progress_ms: responseJson.progress_ms,
-    duration_ms: responseJson.item.duration_ms
+    duration_ms: responseJson.item.duration_ms,
+    external_uri: responseJson.item.external_urls.spotify
   }
 }
 
