@@ -62,9 +62,10 @@ class App extends Component<ComponentProps & WithStyles<typeof styles>, PlayerSt
           initialState.albumName = res.data.album.name;
           initialState.artists = res.data.artists;
         }
+
+        this.setState(initialState);
       });
 
-      this.setState(initialState);
       return;
     }
 
@@ -95,9 +96,9 @@ class App extends Component<ComponentProps & WithStyles<typeof styles>, PlayerSt
           initialState.albumName = res.data.album.name;
           initialState.artists = res.data.artists;
         }
-      });
 
-    this.setState(initialState);
+        this.setState(initialState);
+      });
   };
 
   // Before the component mounts, we initialise our state
